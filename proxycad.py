@@ -143,7 +143,7 @@ def main(u_path):
             render_template(
                 "getcap.xml.j2",
                 proto=request.headers.get("X-Forwarded-Proto", "http"),
-                host=request.headers.get("X-Forwarded-Host", "localhost"),
+                host=request.host,
                 l93bbox=app.config.l93bbox,
                 llbbox=app.config.llbbox,
                 reqpath=request.path,
