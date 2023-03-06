@@ -326,7 +326,7 @@ def main(u_path):
 
 if __name__ == "__main__":
     app.logger.setLevel(logging.DEBUG)
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
 else:
     gunicorn_logger = logging.getLogger("gunicorn.error")
     app.logger.handlers = gunicorn_logger.handlers
