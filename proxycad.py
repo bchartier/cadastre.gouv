@@ -14,6 +14,11 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from osgeo import gdal, ogr, osr
 
+
+SERVICE_URL_TEMPLATE_WITH_NO_API_KEY = "https://inspire.cadastre.gouv.fr/scpc"
+SERVICE_URL_TEMPLATE_WITH_API_KEY = SERVICE_URL_TEMPLATE_WITH_NO_API_KEY + "/{apikey}"
+
+
 # read config file
 def init_app(app):
     config = configparser.ConfigParser()
@@ -29,6 +34,11 @@ def init_app(app):
         app.config.champ_insee = config["gdal"].get("insee")
     if "dgfip" in config.sections():
         app.config.apikey = config["dgfip"].get("apikey")
+
+    if app.config.apikey:
+        app.config.service_url = SERVICE_URL_TEMPLATE_WITH_API_KEY.format(apikey=app.config.apikey)
+    else:
+        app.config.service_url = SERVICE_URL_TEMPLATE_WITH_NO_API_KEY
 
 
 # open gdal data source, return layer
@@ -253,11 +263,12 @@ def main(u_path):
             app.logger.debug(
                 "{} {} (EPSG:{}) => 302 w/ {}".format(query, bbox, epsg, comms[0])
             )
-            url = "https://inspire.cadastre.gouv.fr/scpc/{}/{}.wms?{}".format(
-                app.config.apikey,
-                comms[0],
-                qstr,
+            url = "{service_url}/{comm}.wms?{qstr}".format(
+                service_url=app.config.service_url,
+                comm=comms[0],
+                qstr=qstr,
             )
+
             return redirect(url, code=302)
         # do X queries
         else:
@@ -268,11 +279,12 @@ def main(u_path):
             # start with an empty transparent image, in case all queries fail..
             out = Image.new("RGBA", (width, height), (0, 0, 0, 0))
             for comm in comms:
-                url = "https://inspire.cadastre.gouv.fr/scpc/{}/{}.wms?transparent=true&{}".format(
-                    app.config.apikey,
-                    comm,
-                    qstr,
+                url = "{service_url}/{comm}.wms?transparent=true&{qstr}".format(
+                    service_url=app.config.service_url,
+                    comm=comm,
+                    qstr=qstr,
                 )
+
                 try:
                     resp = get(url, args)
                 except requests.exceptions.RequestException as e:
