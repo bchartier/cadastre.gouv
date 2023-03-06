@@ -36,7 +36,9 @@ def init_app(app):
         app.config.apikey = config["dgfip"].get("apikey")
 
     if app.config.apikey:
-        app.config.service_url = SERVICE_URL_TEMPLATE_WITH_API_KEY.format(apikey=app.config.apikey)
+        app.config.service_url = SERVICE_URL_TEMPLATE_WITH_API_KEY.format(
+            apikey=app.config.apikey
+        )
     else:
         app.config.service_url = SERVICE_URL_TEMPLATE_WITH_NO_API_KEY
 
