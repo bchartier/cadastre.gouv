@@ -1,0 +1,14 @@
+version: '3'
+name: proxy-cadastre
+
+services:
+  web:
+    build:
+      context: .
+    # flask requires SIGINT to stop gracefully
+    # (default stop signal from Compose is SIGTERM)
+    stop_signal: SIGINT
+    ports:
+      - '5000:5000'
+    volumes:
+      - .:/app
